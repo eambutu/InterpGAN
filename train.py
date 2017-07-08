@@ -17,7 +17,7 @@ d_learning_rate = 2e-4
 g_learning_rate = 2e-4
 z_dim = 256
 betas = (0.9, 0.999)
-num_epochs = 50
+num_epochs = 25
 batch_size = 4
 cuda = True
 
