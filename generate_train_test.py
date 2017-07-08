@@ -2,9 +2,7 @@ NUM_IMAGES = 10427
 
 def idx_to_name(idx):
     num_string = str(idx)
-    while len(num_string) < 4:
-        num_string = '0' + num_string
-    return 'anime_sample_' + num_string + '.jpg'
+    return 'anime_sample_' + num_string.zfill(5) + '.jpg'
 
 if __name__ == '__main__':
     # Generate with a 80/20 split for now
