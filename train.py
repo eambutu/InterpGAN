@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import torch
 import torch.nn as nn
@@ -19,7 +20,6 @@ z_dim = 256
 betas = (0.9, 0.999)
 num_epochs = 25
 batch_size = 4
-cuda = True
 
 def get_distribution_sampler(mu, sigma):
     return lambda m, n: torch.Tensor(np.random.normal(mu, sigma, (m, n)))  # Gaussian
@@ -97,6 +97,11 @@ def extract(v):
     return v.data.storage().tolist()
 
 def main():
+    parser = argparse.ArgumentParser(description='Testing script')
+    parser.add_argument('--gpu', help='Use gpu for training', default=False,
+                        action='store_true')
+    args = parser.parse_args()
+
     data = FramesDataset(3372, './anime_sample_train.txt', './anime_sample')
     dataloader = DataLoader(data, batch_size=batch_size, shuffle=True)
 
@@ -107,16 +112,20 @@ def main():
     g_optimizer = optim.Adam(G.parameters(), lr=g_learning_rate, betas=betas)
     g_sampler = get_distribution_sampler(0, 1) 
 
-    if cuda:
+    if args.gpu:
         G.cuda()
         D.cuda()
         criterion.cuda()
 
     for epoch in range(num_epochs):
         for i_batch, sample_batched in enumerate(dataloader):
-            if cuda:
+            ones = torch.ones(batch_size)
+            zeros = torch.zeros(batch_size)
+            if args.gpu:
                 sample_batched['start_end_frames'] = sample_batched['start_end_frames'].cuda()
                 sample_batched['middle_frame'] = sample_batched['middle_frame'].cuda()
+                ones = ones.cuda()
+                zeros = zeros.cuda()
             start_end_frames = Variable(sample_batched['start_end_frames']).float()
             for d_index in range(d_steps):
                 D.zero_grad()
@@ -128,7 +137,7 @@ def main():
                 d_real_data = d_real_data.float()
                 d_real_decision = D(d_real_data)
                 # 1 is true
-                d_real_error = criterion(d_real_decision, Variable(torch.ones(batch_size).cuda()))
+                d_real_error = criterion(d_real_decision, Variable(ones))
                 d_real_error.backward()
 
                 # Train D on fake
@@ -138,7 +147,7 @@ def main():
                                                     d_fake_frame.data.double()), 1))
                 d_fake_frames = d_fake_frames.float()
                 d_fake_decision = D(d_fake_frames)
-                d_fake_error = criterion(d_fake_decision, Variable(torch.zeros(batch_size).cuda()))
+                d_fake_error = criterion(d_fake_decision, Variable(zeros))
                 d_fake_error.backward()
                 d_error = d_real_error + d_fake_error
                 d_optimizer.step()
@@ -152,7 +161,7 @@ def main():
                                                     g_fake_frame.data.double()), 1))
                 g_fake_frames = g_fake_frames.float()
                 dg_fake_decision = D(g_fake_frames)
-                g_error = criterion(dg_fake_decision, Variable(torch.ones(batch_size).cuda()))
+                g_error = criterion(dg_fake_decision, Variable(ones))
 
                 g_error.backward()
                 g_optimizer.step()
