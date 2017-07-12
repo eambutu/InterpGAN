@@ -11,7 +11,7 @@ if __name__ == '__main__':
     # split_idx = (num_intervals * 8) // 10
     split_idx = num_intervals - 100
     with open('./anime_sample_train.txt', 'w') as fin:
-        for i in range(split_idx):
+        for i in range(1, split_idx):
             fin.write(idx_to_name(3 * i) + ' ')
             fin.write(idx_to_name(3 * i + 2) + ' ')
             fin.write(idx_to_name(3 * i + 1) + '\n')

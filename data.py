@@ -11,7 +11,7 @@ class FramesDataset(Dataset):
         self.root_dir = root_dir
 
         # Resize the image to nicer looking dimensions, still 16 x 9
-        self.transform = lambda x: resize(x, (256, 112, 3))
+        self.transform = lambda x: self.__transform__(x) 
 
         with open(dataset_file, 'r') as fin:
             self.data_lines = fin.readlines()
@@ -19,6 +19,14 @@ class FramesDataset(Dataset):
 
     def __len__(self):
         return self.num_images
+
+    def __transform__(self, image):
+        # Resize the image to smaller dimension, still 16 x 9
+        temp = resize(image, (112, 256, 3))
+        # Normalize between -1 and 1
+        temp = temp / 127.5
+        temp = temp - 1
+        return temp
 
     def __getitem__(self, idx):
         # first and second imgs are first and third frames. third imgs is the in

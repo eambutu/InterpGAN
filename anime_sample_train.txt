@@ -1,4 +1,3 @@
-anime_sample_0000.jpg anime_sample_0002.jpg anime_sample_0001.jpg
 anime_sample_0003.jpg anime_sample_0005.jpg anime_sample_0004.jpg
 anime_sample_0006.jpg anime_sample_0008.jpg anime_sample_0007.jpg
 anime_sample_0009.jpg anime_sample_0011.jpg anime_sample_0010.jpg
