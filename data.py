@@ -21,8 +21,8 @@ class FramesDataset(Dataset):
         return self.num_images
 
     def __transform__(self, image):
-        # Resize the image to smaller dimension, still 16 x 9
-        temp = resize(image, (112, 256, 3))
+        # Resize the image to smaller dimensions, still 16 x 9
+        temp = resize(image, (112, 256, 3), preserve_range=True)
         # Normalize between -1 and 1
         temp = temp / 127.5
         temp = temp - 1
