@@ -17,8 +17,9 @@ g_steps = 1
 d_learning_rate = 2e-4
 g_learning_rate = 2e-4
 z_dim = 256
+d_momentum = 0.9
 betas = (0.9, 0.999)
-num_epochs = 25
+num_epochs = 75
 batch_size = 4
 
 def get_distribution_sampler(mu, sigma):
@@ -39,7 +40,7 @@ def main():
     G = Generator()
     D = Discriminator()
     criterion = nn.BCELoss()
-    d_optimizer = optim.Adam(D.parameters(), lr=d_learning_rate, betas=betas)
+    d_optimizer = optim.SGD(D.parameters(), lr=d_learning_rate, momentum=d_momentum)
     g_optimizer = optim.Adam(G.parameters(), lr=g_learning_rate, betas=betas)
     g_sampler = get_distribution_sampler(0, 1) 
 
