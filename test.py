@@ -13,7 +13,7 @@ sys.path.append('/home/phillip/Projects/vision/torchvision')
 
 import utils
 
-weights_file_path = './saves/gen_epoch_49.pth'
+weights_file_path = './saves/gen_epoch_24.pth'
 test_write_path = './samples/'
 
 def main():
@@ -36,12 +36,12 @@ def main():
     for i_batch, sample_batched in enumerate(dataloader):
         start_end_frames = Variable(sample_batched['start_end_frames']).float()
 
-        import pdb; pdb.set_trace()
         # Dummy variable for now
         gen_frame = G(True, start_end_frames)
         start_frame = start_end_frames[:, 0:3, :, :]
         end_frame = start_end_frames[:, 3:6, :, :]
         frames = torch.cat([start_frame, gen_frame, end_frame])
+        frames = (frames + 1) / 2
         frames = frames.data
         utils.save_image(frames, test_write_path + '%d.png' % (i_batch))
 
