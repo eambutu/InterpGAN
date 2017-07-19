@@ -7,13 +7,8 @@ import torchvision.utils as vutils
 from data import FramesDataset
 from model import Generator, Discriminator
 
-import sys
 
-sys.path.append('/home/phillip/Projects/vision/torchvision')
-
-import utils
-
-weights_file_path = './saves/gen_epoch_24.pth'
+weights_file_path = './saves/gen_epoch_74.pth'
 test_write_path = './samples/'
 
 def main():
@@ -32,6 +27,7 @@ def main():
         G_weights = torch.load(weights_file_path, map_location=lambda storage,
                                loc: storage)
     G.load_state_dict(G_weights)
+    G.eval()
 
     for i_batch, sample_batched in enumerate(dataloader):
         start_end_frames = Variable(sample_batched['start_end_frames']).float()
@@ -43,7 +39,7 @@ def main():
         frames = torch.cat([start_frame, gen_frame, end_frame])
         frames = (frames + 1) / 2
         frames = frames.data
-        utils.save_image(frames, test_write_path + '%d.png' % (i_batch))
+        vutils.save_image(frames, test_write_path + '%d.png' % (i_batch))
 
 if __name__ == '__main__':
     main()

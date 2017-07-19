@@ -2,12 +2,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # Taken from DCGAN pytorch tutorial
-def conv(c_in, c_out, k_size, stride=2, pad=1, bn=True):
+def conv(c_in, c_out, k_size, stride=2, pad=1, bn=True, dropout_p=0):
     """Custom convolutional layer for simplicity."""
     layers = []
     layers.append(nn.Conv2d(c_in, c_out, k_size, stride, pad))
     if bn:
         layers.append(nn.BatchNorm2d(c_out))
+    if dropout_p > 0:
+        layers.append(nn.Dropout2d(dropout_p, True))
     return nn.Sequential(*layers)
 
 def deconv(c_in, c_out, k_size, stride=2, pad=1, bn=True):
@@ -18,11 +20,13 @@ def deconv(c_in, c_out, k_size, stride=2, pad=1, bn=True):
         layers.append(nn.BatchNorm2d(c_out))
     return nn.Sequential(*layers)
 
-def fc(input_dim, output_dim, bn=True):
+def fc(input_dim, output_dim, bn=True, dropout_p=0):
     layers = []
     layers.append(nn.Linear(input_dim, output_dim))
     if bn:
         layers.append(nn.BatchNorm1d(output_dim))
+    if dropout_p > 0:
+        layers.append(nn.Dropout2d(dropout_p, True))
     return nn.Sequential(*layers)
 
 class Generator(nn.Module):
@@ -56,12 +60,12 @@ class Discriminator(nn.Module):
     def __init__(self, image_w=256, image_h=112, conv_dim=64):
         super(Discriminator, self).__init__()
         self.conv_dim = conv_dim
-        self.conv1 = conv(9, conv_dim, 5, pad=2, bn=False)
-        self.conv2 = conv(conv_dim, conv_dim*2, 5, pad=2)
-        self.conv3 = conv(conv_dim*2, conv_dim*4, 3)
-        self.conv4 = conv(conv_dim*4, conv_dim*8, 3)
-        self.conv5 = conv(conv_dim*8, conv_dim*2, 3, stride=1)
-        self.fc = fc(conv_dim * 2 * (image_w // 16) * (image_h // 16), 1)
+        self.conv1 = conv(9, conv_dim, 5, pad=2, bn=False, dropout_p=0.1)
+        self.conv2 = conv(conv_dim, conv_dim*2, 5, pad=2, dropout_p=0.25)
+        self.conv3 = conv(conv_dim*2, conv_dim*4, 3, dropout_p=0.25)
+        self.conv4 = conv(conv_dim*4, conv_dim*8, 3, dropout_p=0.5)
+        self.conv5 = conv(conv_dim*8, conv_dim*2, 3, stride=1, dropout_p=0.5)
+        self.fc = fc(conv_dim * 2 * (image_w // 16) * (image_h // 16), 1, dropout_p=0.5)
 
     def forward(self, x, image_w=256, image_h=112):                         # For image shape 256 x 112
         out = F.leaky_relu(self.conv1(x), 0.05)    # (?, 32, 128, 56)
