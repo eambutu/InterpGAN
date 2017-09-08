@@ -33,7 +33,10 @@ def save_split(vsn='0'):
         num_files = len([name for name in os.listdir(SAMPLE_DIR)])
         num_itv = num_files // 3
         split_idx = int(num_itv * 0.8)
-        itv_list = np.random.permutation(num_itv)
+        # itv_list = np.random.permutation(num_itv)
+        # For now, don't permute because adjacent 3 frames look a lot like each
+        # other
+        itv_list = [i for i in range(num_itv)]
         train_itvs, test_itvs = itv_list[0:split_idx], itv_list[split_idx:]
         with open(split_train, 'w') as fin:
             for itv in train_itvs:
